@@ -62,7 +62,7 @@ class TRICD_Form {
       
     }
     
-    return '<div>';
+    return '<li>';
     
   }
   
@@ -74,7 +74,7 @@ class TRICD_Form {
       
     }
     
-    return '</div>';
+    return '</li>';
     
   }
   
@@ -86,7 +86,7 @@ class TRICD_Form {
       
     }
     
-    return '</div>';
+    return '</ul>';
     
   }
   
@@ -98,7 +98,7 @@ class TRICD_Form {
       
     }
     
-    return '<div>';
+    return '<ul class="tricd_forms">';
     
   }
   
@@ -210,9 +210,6 @@ class TRICD_Form {
     echo '</form>';
     
   }
-  
-  
-  
   
 }
 
@@ -348,6 +345,13 @@ abstract class TRICD_FormElement implements TRICD_InterfaceFormElement{
 
 class TRICD_TextInput extends TRICD_FormElement{
   
+  function getClass() {
+    
+    return ' class="tricd_textinput" ';
+  
+    
+  }
+  
   function render() {
     
     $invalid = '';
@@ -366,7 +370,7 @@ class TRICD_TextInput extends TRICD_FormElement{
       
     }
     
-    return '<input placeholder="'.$this->label.'" '. $this->getClass() .' id="'.$this->id.'" type="text" name="' . $this->id .'" value="'. $value .'"/>';
+    return '<label for="'. $this->id .'">'. $this->label .'</label><input placeholder="'.$this->label.'" '. $this->getClass() .' id="'.$this->id.'" type="text" name="' . $this->id .'" value="'. $value .'"/>';
     
   }
   
@@ -393,7 +397,6 @@ class TRICD_Select extends TRICD_FormElement{
   
   function render() {
     
-    #echo '<br/><br/>';
     echo '<label for="'. $this->id .'">'.$this->label.'</label>';
     echo '<select '. $this->getClass() .' id="'. $this->id .'" name="'. $this->id . '">';
     
@@ -436,7 +439,7 @@ class TRICD_RadioButtons extends TRICD_FormElement{
   
   function render() {
     
-    echo '<div style="float:left; width: 100px;">'. $this->label.'</div>';
+    echo '<label>'. $this->label.'</label><br/>';
     
     $values = $this->getValues();
     
@@ -448,8 +451,8 @@ class TRICD_RadioButtons extends TRICD_FormElement{
       
       if ($this->getData() == $value) $selected = ' checked="checked" ';
       
-      echo '<div style="float:left; margin-right:20px;"><input value="'. $value .'" '. $selected .' id="'. $_id .'" type="radio" name="'. $this->id .'"/>
-      <label for="'. $_id .'">'. $text .'</label></div>';
+      echo '<input value="'. $value .'" '. $selected .' id="'. $_id .'" type="radio" name="'. $this->id .'"/>
+      <label for="'. $_id .'">'. $text .'</label>';
     }
     
   }
@@ -461,6 +464,9 @@ class TRICD_RadioButtons extends TRICD_FormElement{
 
 class TRICD_TextArea extends TRICD_FormElement{
   
+  function getClass() {
+    return ' class="tricd_textarea" ';
+  }
   
   function render() {
     
