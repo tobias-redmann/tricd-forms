@@ -4,7 +4,7 @@ class TRICD_Form {
   
   protected $messages = '';
   
-  private $elements;
+  private $elements = array();
   
   private $method;
   
@@ -233,6 +233,16 @@ interface TRICD_InterfaceFormElement {
   
 }
 
+/*
+ * 
+ * additional
+ * 
+ * required_when_valid => array(element_ids)
+ * required_when_not_valid => array(element_ids)
+ * 
+ */
+
+
 abstract class TRICD_FormElement implements TRICD_InterfaceFormElement{
   
   public $id;
@@ -255,11 +265,26 @@ abstract class TRICD_FormElement implements TRICD_InterfaceFormElement{
     
     if(array_key_exists('class', $this->args) && isset($this->args['class'])) {
       
-      return ' class="'. $this->args['class'] .'" ';
+      $c = ' class="'. $this->args['class'] ;
       
+      if (!$this->isValid() && $this->form->isSend()) {
+        
+        $c.= ' tricd_invalid ';
+        
+      }
+      
+      $c.= '"';
+      
+      return $c;
     }
     
-    return '';
+    if (!$this->isValid() && $this->form->isSend()) {
+        
+      return ' class="tricd_invalid" ';
+        
+    } else {
+      return '';
+    }
     
     
   }
@@ -345,12 +370,15 @@ abstract class TRICD_FormElement implements TRICD_InterfaceFormElement{
 
 class TRICD_TextInput extends TRICD_FormElement{
   
+  /*
   function getClass() {
     
     return ' class="tricd_textinput" ';
   
     
   }
+   
+   */
   
   function render() {
     
@@ -371,6 +399,46 @@ class TRICD_TextInput extends TRICD_FormElement{
     }
     
     return '<label for="'. $this->id .'">'. $this->label .'</label><input placeholder="'.$this->label.'" '. $this->getClass() .' id="'.$this->id.'" type="text" name="' . $this->id .'" value="'. $value .'"/>';
+    
+  }
+  
+}
+
+
+class TRICD_Datepicker extends TRICD_FormElement{
+  
+  /*
+  function getClass() {
+    
+    return ' class="tricd_textinput" ';
+  
+    
+  }
+   
+   */
+  
+  function render() {
+    
+    $invalid = '';
+    
+    if (!$this->isValid()) {
+      
+      $invalid = ' class="invalid" ';
+      
+    }
+    
+    $value = '';
+    
+    if ($this->getData() !== false) {
+      
+      $value = $this->getData();
+      
+    }
+    
+    $this->form->addAdditionalContent('<script type="text/javascript">jQuery("#'. $this->id .'").datepicker();</script>');
+    
+    return '<label for="'. $this->id .'">'. $this->label .'</label><input placeholder="'.$this->label.'" '. $this->getClass() .' id="'.$this->id.'" type="text" name="' . $this->id .'" value="'. $value .'"/>';
+    
     
   }
   
@@ -460,6 +528,61 @@ class TRICD_RadioButtons extends TRICD_FormElement{
 }
 
 
+class TRICD_Checkboxes extends TRICD_FormElement{
+  
+  function getValues() {
+    
+    if (isset($this->args['values']) && is_array($this->args['values']) ) {
+      
+      return $this->args['values'];
+      
+    } else {
+      
+      return array();
+      
+    }
+    
+  }
+  
+  
+  
+  function render() {
+    
+    echo '<label>'. $this->label.'</label><br/>';
+    
+    $values = $this->getValues();
+    
+    foreach($values as $value => $text) {
+      
+      $_id = $this->id .'_' . $value;
+      
+      $selected = '';
+      
+      if ($this->getData() == $value) $selected = ' checked="checked" ';
+      
+      echo '<input value="'. $value .'" '. $selected .' id="'. $_id .'" type="checkbox" name="'. $this->id .'[]"/>
+      <label for="'. $_id .'">'. $text .'</label>';
+    }
+    
+  }
+  
+}
+
+
+class TRICD_Checkbox extends TRICD_FormElement{
+  
+  
+  function render() {
+    
+    $selected = '';
+    
+    if ($this->getData() == '1') $selected = ' checked="checked" ';
+      
+    echo '<input '. $selected .' value="1" id="'. $this->id .'" type="checkbox" name="'. $this->id .'"/> <label for="'. $this->id .'">'. $this->label .'</label>';
+    
+  }
+  
+}
 
 
 class TRICD_TextArea extends TRICD_FormElement{
@@ -483,6 +606,27 @@ class TRICD_TextArea extends TRICD_FormElement{
     
   }
   
+  
+}
+
+class TRICD_Text extends TRICD_FormElement{
+  
+  function isValid() {
+    return true;
+  }
+  
+  function render() {
+    
+    return '<h3>'. $this->label .'</h3>';
+    
+  }
+   
+}
+
+
+interface TRICD_InterfaceValidator {
+  
+  function validate();
   
 }
 
